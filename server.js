@@ -1,31 +1,16 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const InitiateMongoServer = require("./config/db");
-
-// Initiate Mongo Server
-InitiateMongoServer();
-
-const app = express();
-
-// PORT
-const PORT = process.env.PORT || 4000;
-
-// Middleware
+var express = require("express");
+var app = express();
+var bodyParser = require("body-parser");
 app.use(bodyParser.json());
-
-app.get("/", (req, res) => {
-  res.json({ message: "API Working" });
-});
+const mongoose = require('./Root/db');
+const router = express.Router();
 
 
 
-var authController = require('./authController');
-app.use('/api/auth', authController);
+app.use("/", router);
+app.use("/users", require("./Routes/user_route"));
 
 
-app.listen(PORT, (req, res) => {
-  console.log(`Server Started at PORT ${PORT}`);
-});
 
-
-module.exports = app;
+app.listen(8000);
+console.log("Listening to PORT 8000");

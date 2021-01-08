@@ -1,14 +1,13 @@
 {
-  "name": "spacecode",
+  "name": "crud-operations",
   "version": "1.0.0",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
-    "start": "node server.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Prathyusha",
+  "author": "",
   "license": "ISC",
-  "description": "\"assessment\"",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
@@ -16,8 +15,5 @@
     "express-validator": "^6.9.2",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.11.10"
-  },
-  "devDependencies": {
-    "mocha": "^8.2.1"
   }
 }
