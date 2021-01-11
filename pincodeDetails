@@ -1,0 +1,29 @@
+var express = require("express");
+var app = express();
+var bodyParser = require("body-parser");
+app.use(bodyParser.json());
+const mongoose = require('./Root/db');
+const router = express.Router();
+const Pincode=require('./Models/Pincode')
+const request = require('request');
+
+
+router.get('/pincode/:pincode',  (req, res, next) => {
+
+    request('https://api.postalpincode.in/pincode/'+ req.params.pincode, function(err, response, body) {
+       if(!err) {
+           let pincodeDetail = JSON.parse(body);
+           return res.status(200).json({success: true,  pincodeDetail})
+       }
+   })
+});
+
+
+
+app.use("/", router);
+app.use("/users", require("./Routes/user_route"));
+
+
+
+app.listen(8000);
+console.log("Listening to PORT 8000");
