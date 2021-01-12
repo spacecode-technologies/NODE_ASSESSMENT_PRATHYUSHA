@@ -3,10 +3,17 @@ const express = require("express");
 const { check, validationResult} = require("express-validator/check");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const router = express.Router();
+// const router = express.Router();
+const { roles } = require('./roles')
 
+const router = new express.Router();
 const User = require("./Models/User");
 const auth=require('./middleware/auth')
+
+var mongoXlsx = require('mongo-xlsx');
+
+
+
 router.post(
     "/signup",
     [
@@ -29,7 +36,8 @@ router.post(
         const {
             username,
             email,
-            password
+            password,
+            role
         } = req.body;
         try {
             let user = await User.findOne({
@@ -44,7 +52,8 @@ router.post(
             user = new User({
                 username,
                 email,
-                password
+                password,
+                role: role || "basic"
             });
 
             const salt = await bcrypt.genSalt(10);
@@ -67,9 +76,8 @@ router.post(
                     if (err) throw err;
                     res.status(200).json({
                         message:"user succesfully registered",
-                        email,
-                        username,
-                        token
+                        data: { email, role,username },
+                      
                     });
                 }
             );
@@ -133,7 +141,9 @@ router.post(
           (err, token) => {
             if (err) throw err;
             res.status(200).json({
-              token
+                message:"user Sucessfully login",
+                data: { email: user.email, role: user.role },
+                token
             });
           }
         );
@@ -151,6 +161,7 @@ router.get("/info", auth, async (req, res) => {
     try {
       // request.user is getting fetched from Middleware after token authentication
       const user = await User.findById(req.user.id);
+     
       res.json(user);
     } catch (e) {
       res.send({ message: "Error in Fetching user" });
@@ -158,5 +169,41 @@ router.get("/info", auth, async (req, res) => {
   });
 
 
+//get all users
 
-module.exports = router;
+  router.get("/users",  async (req, res) => {
+    try {
+      const user = await User.find({});
+      res.json(user);
+   
+  }catch (e) {
+        console.log({ message: "Error in Fetching user" });
+       }
+      ;
+     
+  });
+
+  router.get("/info/:id",   (req, res) => {
+    User.findById(req.params.id,(err,data)=>{
+      // console.log(data)
+      if(data.role == "basic"){
+        res.json(data)
+      }else{
+        User.find({},(err,users)=>{
+          if (err){
+return err
+          }else{
+            res.json(users)
+          }
+        })
+      }
+    })
+  })
+
+
+
+
+  
+
+
+

@@ -1,75 +1,65 @@
-const mongoose= require('../Root/db')
-const validator = require('validator');
 
+const mongoose=require('mongoose')
+let mongoXlsx = require('mongo-xlsx');
 
-const adressSchema = new mongoose.Schema({
-    area:{
-        type:String,required:true
-    },
-    pincode:{
-        type:Number,
-        required:true
-        
-    },
-    state:{
+var excel = require("exceljs");
+
+const User=mongoose.Schema({
+    username:{
         type:String,
         required:true
-       
-    },
-    Country:{
-        type:String
-    }
-})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const userSchema= new mongoose.Schema({
-    firstName:{type: String,
-         lowercase: true,
-          required: [true, "can't be blank"],
-           match: [/^[a-zA-Z0-9]+$/, 'is invalid'], index: true},
-    lastName:{
-        type:String,
-        required:true
-    },
-    email: {
-        type: String,
-        required: [true, 'Please provide your email'],
-        unique: true,
-        lowercase: true,
-        validate: [validator.isEmail, 'Please provide a valid email']
     },
     password:{
         type:String,
-        required:true,
-        minlength: 8
+        required:true
     },
-    phoneNumber:{
-        type:Number,
-        required:true,
-        length:10
+    email:{
+        type:String,
+        required:true
     },
-    adress:adressSchema,
+     role: {
+  type: String,
+  default: 'basic',
+  enum: ["basic",  "admin"]
+ },
+    createdAt:{
+        type:Date,
+      default:Date.now()
+    }
 
-      company: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Company"
-      }]
 })
 
 
 
-var User = mongoose.model("User", userSchema, "User");
 
-module.exports = User;
+let model = mongoXlsx.buildDynamicModel(User);
+mongoXlsx.mongoData2Xlsx(User, model, function (err, res) {
+    if (err) throw err;
+    console.log(res);
+	
+	let workbook = new excel.Workbook(); //creating workbook
+	let worksheet = workbook.addWorksheet('User'); //creating worksheet
+	
+	//  WorkSheet Header
+	worksheet.columns = [
+		{ header: 'Id', key: '_id', width: 10 },
+		{ header: 'Name', key: 'username', width: 30 },
+		{ header: 'email', key: 'email', width: 30},
+		{ header: 'role', key: 'role', width: 10, outlineLevel: 1}
+	];
+	
+	// Add Array Rows
+	// worksheet.addRows(res);
+	
+	// Write to File
+	workbook.xlsx.writeFile("customer.xlsx")
+		.then(function() {
+			console.log("file saved!");
+		});
+	
+   
+  });
+
+
+
+module.exports=mongoose.model("user",User)
