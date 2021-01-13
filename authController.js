@@ -34,6 +34,7 @@ router.post(
         }
 
         const {
+         
             username,
             email,
             password,
